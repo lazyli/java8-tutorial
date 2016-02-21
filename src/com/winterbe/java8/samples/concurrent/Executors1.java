@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class Executors1 {
 
     public static void main(String[] args) {
-        test1(3);
+        test1(2);
 //        test1(7);
     }
 
@@ -32,17 +32,30 @@ public class Executors1 {
     static void stop(ExecutorService executor) {
         try {
             System.out.println("attempt to shutdown executor");
-            executor.shutdown();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
+            executor.shutdown(); //waits for currently running tasks to finish 没有马上结束
+            System.out.println("waits for currently running tasks to finish");
+            
+//            try {
+//				Thread.sleep(2500);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+            
+            //executor.awaitTermination(5, TimeUnit.SECONDS); //等待
+            
+            System.out.println("waiting finish");
+
+            
         }
-        catch (InterruptedException e) {
-            System.err.println("termination interrupted");
-        }
-        finally {
+//        catch (InterruptedException e) {
+//            System.err.println("termination interrupted");
+//        }
+        finally 
+        {
             if (!executor.isTerminated()) {
                 System.err.println("killing non-finished tasks");
             }
-            executor.shutdownNow();
+            executor.shutdownNow();  //立即结束
             System.out.println("shutdown finished");
         }
     }
