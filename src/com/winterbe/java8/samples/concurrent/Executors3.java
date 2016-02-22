@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -18,9 +19,8 @@ public class Executors3 {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         test1();
 //        test2();
-//        test3();
-
-//        test4();
+//      test3();
+//     test4();
 //        test5();
     }
 
@@ -32,8 +32,12 @@ public class Executors3 {
                 callable("task2", 1),
                 callable("task3", 3));
 
-        String result = executor.invokeAny(callables);
-        System.out.println(result);
+        String result = executor.invokeAny(callables);  // invoke any  executor shutdown之前可以重复invoke
+        	System.out.println(result);
+        
+        List<Future<String>> resultA =  executor.invokeAll(callables);  //invoke all 需要使用future类型来取的返回值
+        for(Future<String> f:resultA)
+        	System.out.println("asdf:" +f.get().toString());
 
         executor.shutdown();
     }
@@ -41,7 +45,7 @@ public class Executors3 {
     private static Callable<String> callable(String result, long sleepSeconds) {
         return () -> {
             TimeUnit.SECONDS.sleep(sleepSeconds);
-            return result;
+            return result +":  " +sleepSeconds;
         };
     }
 
@@ -53,9 +57,7 @@ public class Executors3 {
                 () -> "task2",
                 () -> "task3");
 
-        executor.invokeAll(callables)
-                .stream()
-                .map(future -> {
+        executor.invokeAll(callables).stream().map(future -> {
                     try {
                         return future.get();
                     }
@@ -68,7 +70,7 @@ public class Executors3 {
         executor.shutdown();
     }
 
-    private static void test3() {
+    private static void test3() throws InterruptedException {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
         Runnable task = () -> {
@@ -82,6 +84,16 @@ public class Executors3 {
         };
 
         executor.scheduleWithFixedDelay(task, 0, 1, TimeUnit.SECONDS);
+        executor.awaitTermination(4, TimeUnit.SECONDS); //当前线程停止4秒，scheduling仍执行2次后，输出 end
+        												
+														//        Scheduling: 267468909984462
+														//        Scheduling: 267470912146948
+														//        end
+														//        Scheduling: 267472914815118
+        System.out.println("end");
+//        executor.shutdown();   //执行一次结束
+//        executor.shutdownNow(); //马上结束
+        
     }
 
     private static void test2() {

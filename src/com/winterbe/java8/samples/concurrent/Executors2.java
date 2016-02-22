@@ -14,8 +14,8 @@ public class Executors2 {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException {
 //        test1();
-//        test2();
-        test3();
+        test2();
+//        test3();
     }
 
     private static void test3() throws InterruptedException, ExecutionException, TimeoutException {
@@ -66,11 +66,18 @@ public class Executors2 {
 
         System.out.println("future done: " + future.isDone());
 
-        Integer result = future.get();
-
-        System.out.println("future done: " + future.isDone());
-        System.out.print("result: " + result);
-
+        Integer result;
+		try {
+			result = future.get(2, TimeUnit.SECONDS);
+		
+        
+			System.out.println("future done: " + future.isDone());
+			System.out.print("result: " + result);
+			
+		} catch (TimeoutException e) {
+			System.out.println("future.get time too short "); //future.get 时间必须等待submit结束后
+			//e.printStackTrace();
+		}
         executor.shutdownNow();
     }
 
